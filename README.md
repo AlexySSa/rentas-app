@@ -1,59 +1,140 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistema de Alquiler de Autos
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplicacion desarrollada en Laravel 12 para administrar una empresa de alquiler de autos. El sistema incluye autenticacion, roles, gestion de autos, clientes, alquileres y pagos.
 
-## About Laravel
+## Stack tecnico
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- PHP 8.2
+- Laravel 12
+- MySQL
+- Blade
+- Eloquent ORM
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Configuracion de base de datos
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+El proyecto esta configurado para MySQL desde [`.env`](./.env):
 
-## Learning Laravel
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=car_rental
+DB_USERNAME=root
+DB_PASSWORD=saenz0909.
+```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## Ejecucion
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+1. Instalar dependencias:
 
-## Laravel Sponsors
+```bash
+composer install
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+2. Ejecutar migraciones y seeders:
 
-### Premium Partners
+```bash
+php artisan migrate --seed
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+3. Iniciar el servidor:
 
-## Contributing
+```bash
+php artisan serve
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Usuarios creados por seeder
 
-## Code of Conduct
+- `admin@carrental.test` / `password`
+- `empleado@carrental.test` / `password`
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Estructura del codigo
 
-## Security Vulnerabilities
+### Modelos
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Los modelos estan en [`app/Models`](./app/Models):
 
-## License
+- `User.php`: usuario autenticable y relacion con rol.
+- `Role.php`: roles del sistema (`admin`, `empleado`).
+- `Auto.php`: flota de vehiculos.
+- `Cliente.php`: clientes del negocio.
+- `Alquiler.php`: relacion entre cliente y auto.
+- `Pago.php`: pagos asociados a un alquiler.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Controladores
+
+Los controladores estan en [`app/Http/Controllers`](./app/Http/Controllers):
+
+- `AuthController.php`: login y logout.
+- `AutoController.php`: CRUD de autos.
+- `ClienteController.php`: CRUD de clientes.
+- `AlquilerController.php`: CRUD de alquileres y control del estado del auto.
+- `PagoController.php`: CRUD de pagos y validacion de saldo pendiente.
+
+### Middleware
+
+- [`RoleMiddleware.php`](./app/Http/Middleware/RoleMiddleware.php): restringe rutas por rol.
+
+### Rutas
+
+- [`routes/web.php`](./routes/web.php): autenticacion, panel principal y modulos web.
+- [`routes/api.php`](./routes/api.php): endpoints basicos de consulta.
+
+### Vistas
+
+Las vistas estan en [`resources/views`](./resources/views):
+
+- `layouts/app.blade.php`: layout principal.
+- `inicio.blade.php`: panel principal.
+- `auth/login.blade.php`: formulario de acceso.
+- `autos/*`, `clientes/*`, `alquileres/*`, `pagos/*`: CRUD de cada modulo.
+
+## Relaciones del dominio
+
+- Un `Role` tiene muchos `User`.
+- Un `User` pertenece a un `Role`.
+- Un `Cliente` tiene muchos `Alquiler`.
+- Un `Auto` tiene muchos `Alquiler`.
+- Un `Alquiler` pertenece a un `Cliente`.
+- Un `Alquiler` pertenece a un `Auto`.
+- Un `Alquiler` tiene muchos `Pago`.
+- Un `Pago` pertenece a un `Alquiler`.
+
+## Reglas de negocio
+
+- Un auto puede estar `disponible`, `alquilado` o `mantenimiento`.
+- Un alquiler puede estar `activo`, `finalizado` o `cancelado`.
+- Un pago puede estar `pendiente` o `pagado`.
+- El estado `alquilado` del auto se controla desde alquileres.
+- No se permite asignar un auto no disponible a un alquiler activo.
+- No se permite registrar pagos mayores al saldo pendiente.
+
+## Archivos importantes
+
+- [`config/car_rental.php`](./config/car_rental.php): estados, roles y metodos de pago.
+- [`bootstrap/app.php`](./bootstrap/app.php): alias del middleware `role`.
+- [`database/seeders/DatabaseSeeder.php`](./database/seeders/DatabaseSeeder.php): crea usuarios base.
+- [`database/seeders/RoleSeeder.php`](./database/seeders/RoleSeeder.php): crea roles.
+
+## Flujo general
+
+1. El usuario inicia sesion en `AuthController`.
+2. Entra al panel principal con estadisticas y alquileres recientes.
+3. El modulo de autos administra la flota.
+4. El modulo de clientes administra datos de clientes.
+5. El modulo de alquileres conecta cliente y auto, calcula total estimado y actualiza estados.
+6. El modulo de pagos registra cobros y controla el saldo del alquiler.
+
+## Mantenimiento
+
+Si cambias configuracion o vistas:
+
+```bash
+php artisan optimize:clear
+```
+
+Si agregas nuevas migraciones:
+
+```bash
+php artisan migrate
+```
